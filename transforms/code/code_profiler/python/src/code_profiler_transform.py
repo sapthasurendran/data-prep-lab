@@ -157,6 +157,26 @@ class CodeProfilerTransform(AbstractTableTransform):
                 return uast.get_json()
             return None
 
+        def extract_packages_from_uast(uast_json):
+            """Extract package names from the UAST JSON where node_type is 'uast_package'."""
+            package_list = []
+            
+            try:
+                uast_data = json.loads(uast_json)
+                nodes = uast_data.get("nodes", {})
+                
+                # Iterate through nodes to find nodes with type 'uast_package'
+                for node_id, node_data in nodes.items():
+                    if node_data.get("node_type") == "uast_package":
+                        # Extract the package name from the 'code_snippet' (after 'uast_package ')
+                        package_name = node_data["code_snippet"].split(" ")[1]
+                        package_list.append(package_name)
+                        
+            except json.JSONDecodeError as e:
+                print(f"Failed to parse UAST JSON: {e}")
+            
+            return ",".join(package_list)  # Return as a comma-separated string
+
         def get_uast_parquet():
             # df = pd.read_parquet(f'{db_path}/{filename}', 'pyarrow')
             # df = df.reindex(columns=all_columns)
@@ -166,12 +186,20 @@ class CodeProfilerTransform(AbstractTableTransform):
             content_array = table.column(self.contents)
             # Ensure both arrays have the same length
             assert len(lang_array) == len(content_array)
+
             # Generate UASTs using a list comprehension
             uasts = [json.dumps(get_uast_json(content_array[i].as_py(), lang_array[i].as_py())) for i in range(len(content_array))]     
+            # Extract package lists from the UAST column
+            package_lists = [extract_packages_from_uast(uast) for uast in uasts]
+            
             # Add the UAST array as a new column in the PyArrow table
             uast_column = pa.array(uasts)
+            package_list_column = pa.array(package_lists)
+
             table_with_uast = table.append_column('UAST', uast_column)
-            return table_with_uast
+            # Add the uast_package column
+            table_with_package_list = table_with_uast.append_column('UAST_Package_List', package_list_column)
+            return table_with_package_list
 
         table_with_uast = get_uast_parquet()
         # report statistics
