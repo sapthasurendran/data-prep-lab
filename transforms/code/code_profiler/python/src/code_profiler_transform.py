@@ -25,7 +25,7 @@ from tree_sitter import Language, Parser as TSParser
 from tree_sitter_languages import get_language
 
 
-from UAST_parser import UASTParser
+from UAST_parser import UASTParser, uast_read
 import json
 from data_processing.transform import AbstractBinaryTransform, TransformConfiguration
 
@@ -33,6 +33,10 @@ from data_processing.utils import (
     CLIArgumentProvider,
     get_logger,
 )
+from semantic_concepts import *
+from higher_order_concepts import *
+from profiler_report import *
+
 
 short_name = "CodeProfiler"
 cli_prefix = f"{short_name}_"
@@ -139,6 +143,8 @@ class CodeProfilerTransform(AbstractTableTransform):
         }
         self.logger = get_logger(__name__)
 
+        self.ruleset_file = os.path.dirname(os.path.abspath(__file__))
+
     def transform(self, table: pa.Table, file_name: str = None) -> tuple[list[pa.Table], dict[str, Any]]:
         """
         Extracts the syntactic constructs
@@ -208,7 +214,47 @@ class CodeProfilerTransform(AbstractTableTransform):
         # Register cleanup for when the process exits
         atexit.register(shutil.rmtree, self.bindings_dir)
 
-        return [table_with_uast], stats
+        ## Semantic profiling
+        table = table_with_uast
+        self.logger.debug(f"Semantic profiling of one table with {len(table)} rows")
+
+        # Load Knowledge Base
+        ikb = knowledge_base(self.ikb_file, self.null_libs_file)
+        ikb.load_ikb_trie()
+
+        # Extract concept from IKB
+        libraries = table.column('UAST_Package_List').to_pylist()
+        language = table.column('Language').to_pylist()
+        concepts = [concept_extractor(lib, lang, ikb) for lib, lang in zip(libraries, language)]
+        
+        # Append concepts column to table and record unknown libraries
+        new_col = pa.array(concepts)
+        table = table.append_column('Concepts', new_col)
+        ikb.write_null_files()
+
+        # Higher order syntactic profiler
+        self.logger.debug(f"Transforming one table with {len(table)} rows")
+
+        if self.metrics_list is not None:
+            for metric in self.metrics_list:
+                if metric == "CCR":
+                    self.logger.info(f"Generating {metric} values")
+                    uasts = [uast_read(uast_json) for uast_json in table['UAST'].to_pylist()]
+                    ccrs = [extract_ccr(uast) for uast in uasts]
+                    new_table = table.append_column(metric, pa.array(ccrs))
+        
+        self.logger.debug(f"Transformed one table with {len(new_table)} rows")
+        metadata = {"nfiles": 1, "nrows": len(new_table)}
+
+        # Report generation
+        if 'UAST' in new_table.schema.names and 'Concepts' in new_table.schema.names:
+            generate_report(new_table,self.metrics_list)
+
+        # Add some sample metadata.
+        self.logger.debug(f"Transformed one table with {len(table)} rows")
+        stats["nrows"] =  len(table)
+
+        return [table], stats
     
 class CodeProfilerTransformConfiguration(TransformConfiguration):
     def __init__(self, transform_class: type[AbstractBinaryTransform] = CodeProfilerTransform):
