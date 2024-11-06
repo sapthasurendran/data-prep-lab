@@ -1,0 +1,15 @@
+data-prep-toolkit[ray]==0.2.2.dev2
+data-prep-toolkit-transforms[ray,all]==0.2.2.dev2
+
+data-prep-connector==0.2.2
+
+## utils
+humanfriendly
+pandas
+mimetypes-magic
+nest-asyncio
+
+## jupyter and friends
+jupyterlab
+ipykernel
+ipywidgets
