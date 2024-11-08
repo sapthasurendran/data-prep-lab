@@ -142,8 +142,14 @@ class CodeProfilerTransform(AbstractTableTransform):
             "TypeScript": 'typescript'
         }
         self.logger = get_logger(__name__)
-
         self.ruleset_file = os.path.dirname(os.path.abspath(__file__))
+
+        # Semantic profiling related inits
+        self.ikb_file = config.get("ikb_file", "semantic-ruleset/ikb_model.csv")
+        self.null_libs_file = config.get("null_libs_file", "semantic-ruleset/null_libs.csv")
+
+        # Higher order semantic features
+        self.metrics_list = config.get("metrics_list", ["CCR"])
 
     def transform(self, table: pa.Table, file_name: str = None) -> tuple[list[pa.Table], dict[str, Any]]:
         """
@@ -207,12 +213,14 @@ class CodeProfilerTransform(AbstractTableTransform):
             table_with_package_list = table_with_uast.append_column('UAST_Package_List', package_list_column)
             return table_with_package_list
 
+        # Custom cleanup function
+        def safe_rmtree(path):
+            if os.path.exists(path):
+                shutil.rmtree(path)
+
         table_with_uast = get_uast_parquet()
         # report statistics
         stats = {"source_documents": table.num_columns, "result_documents": table_with_uast.num_columns}
-
-        # Register cleanup for when the process exits
-        atexit.register(shutil.rmtree, self.bindings_dir)
 
         ## Semantic profiling
         table = table_with_uast
@@ -253,6 +261,13 @@ class CodeProfilerTransform(AbstractTableTransform):
         # Add some sample metadata.
         self.logger.debug(f"Transformed one table with {len(table)} rows")
         stats["nrows"] =  len(table)
+
+        try:
+            # Use an OS command to remove the folder and its contents
+            subprocess.run(["rm", "-rf", self.bindings_dir], check=True)
+            print(f"Successfully deleted: {self.bindings_dir}")
+        except subprocess.CalledProcessError as e:
+            print(f"Error deleting {self.bindings_dir}: {e}")
 
         return [table], stats
     

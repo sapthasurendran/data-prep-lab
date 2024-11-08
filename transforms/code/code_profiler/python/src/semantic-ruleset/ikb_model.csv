@@ -76,6 +76,17 @@ org.bouncycastle,Java,Security
 jdk.crypto.cryptoki,Java,Security
 jdk.security,Java,Security
 java.net.http,Java,Web Development
+java.net.*,Java,Web Development
+java.net.InetAddress,Java,Web Development
+java.net.URI,Java,Web Development
+java.net.MalformedURLException,Java,Web Development
+java.net.InetSocketAddress,Java,Web Development
+java.net.Socket,Java,Web Development
+java.net.InetSocketAddress,Java,Web Development
+java.net.URISyntaxException,Java,Web Development
+java.net.ServerSocket,Java,Web Development
+java.net.URLClassLoader,Java,Web Development
+java.net.HttpURLConnection,Java,Web Development
 jdk.httpserver,Java,Web Development
 io.activej.codegen,Java,Code Analysis and Linting
 ninja,Java,Code Analysis and Linting
@@ -119,6 +130,58 @@ java.desktop,Java,Graphical User Interface Design
 java.awt,Java,Graphical User Interface Design
 org.openjfx,Java,Graphical User Interface Design
 org.eclipse.swt,Java,Graphical User Interface Design
+java.util.List,Java,Algorithms and Data Structures
+java.util.ArrayList,Java,Algorithms and Data Structures
+java.util.Map,Java,Algorithms and Data Structures
+java.util.Set,Java,Algorithms and Data Structures
+java.util.Arrays,Java,Algorithms and Data Structures
+java.util.HashMap,Java,Algorithms and Data Structures
+java.util.Collections,Java,Algorithms and Data Structures
+java.util.Iterator,Java,Algorithms and Data Structures
+java.util.Collection,Java,Algorithms and Data Structures
+java.util.Hashtable,Java,Algorithms and Data Structures
+java.util.Vector,Java,Algorithms and Data Structures
+java.util.LinkedList,Java,Algorithms and Data Structures
+java.util.*,Java,Algorithms and Data Structures
+java.io.IOException,Java,Error Handling
+java.io.File,Java,File Handling
+java.nio.file.Path,Java,File Handling
+java.util.Properties,Java,File Handling
+java.nio.file.Paths,Java,File Handling
+java.nio.file.Files,Java,File Handling
+java.nio.file.*,Java,File Handling
+java.io.InputStream,Java,File Handling
+java.io.PrintWriter,Java,File Handling
+java.io.OutputStream,Java,File Handling
+java.io.PrintStream,Java,File Handling
+java.io.ByteArrayOutputStream,Java,File Handling
+java.io.ByteArrayInputStream,Java,File Handling
+java.io.FileInputStream,Java,File Handling
+java.io.BufferedReader,Java,File Handling
+java.io.ObjectInputStream,Java,File Handling
+java.io.FileOutputStream,Java,File Handling
+java.io.ObjectOutputStream,Java,File Handling
+java.io.FileNotFoundException,Java,File Handling
+java.io.StringWriter,Java,File Handling
+java.io.UnsupportedEncodingException,Java,File Handling
+java.io.StringReader,Java,File Handling
+java.io.Reader,Java,File Handling
+java.io.FileWriter,Java,File Handling
+org.testng.annotations.Test,Java,Testing
+org.junit.Test,Java,Testing
+org.testng.Assert,Java,Testing
+org.junit.jupiter.api.Test,Java,Testing
+org.junit.BeforeClass,Java,Testing
+org.junit.runner.RunWith,Java,Testing
+org.junit.AfterClass,Java,Testing
+org.junit.Before,Java,Testing
+org.junit.After,Java,Testing
+org.junit.Assert,Java,Testing
+java.util.logging.Level,Java,Logging and Monitoring
+java.util.logging.Logger,Java,Logging and Monitoring
+java.util.logging.LogRecord,Java,Logging and Monitoring
+java.io.Serializable,Java,Data Serialization
+java.lang.reflect.Method,Java,Data Serialization
 ngraph.graph,JavaScript,Algorithms and Data Structures
 buckets,JavaScript,Algorithms and Data Structures
 mori,JavaScript,Algorithms and Data Structures
