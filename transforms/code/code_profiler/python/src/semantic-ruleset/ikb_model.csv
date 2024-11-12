@@ -1082,3 +1082,61 @@ qtypes,Go,Algorithms and Data Structures
 github.com/ctessum/gobra,Go,Algorithms and Data Structures
 github.com/yogischogi/ui2go,Go,Graphical User Interface Design
 github.com/bhojpur/gui,Go,Graphical User Interface Design
+the,Rust,File Handling
+java.util.function.Predicate,Java,Algorithms and Data Structures
+std::io::{self,Rust,File Handling
+wkc_core,Python,Web Development
+prefect,Python,Scheduling and Concurrency
+com.fasterxml.jackson.databind.JsonNode,Java,Data Serialization
+urllib3,Python,Networking and Messaging
+com.ibm.storage.defender.security_context.services.sas.AccessService.ResourceType,Java,Security
+requests,Python,Networking and Messaging
+@polar/impersonation,TypeScript,Security
+sklearn,Python,Mathematics and Numerics
+py4j,Python,Web Development
+static,Java,Algorithms and Data Structures
+com.fasterxml.jackson.databind.node.ObjectNode,Java,Data Serialization
+~/__tests__/cypress/cypress/types,TypeScript,Testing
+mockall::*,Rust,Testing
+std::fs::File,Rust,File Handling
+./testutil,JavaScript,Testing
+std::path::Path,Rust,File Handling
+org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter,Java,Security
+os,Python,File Handling
+com.example.myapp.service.CheckPointDefinitionService,Java,Web Development
+utils,Python,Algorithms and Data Structures
+once_cell::sync::OnceCell,Rust,Concurrency and Synchronization
+./../types,TypeScript,Data Serialization
+com.ibm.storage.defender.security_context.models.rbac.ResourceType,Java,Security
+org.bouncycastle.util.io.pem.PemObject,Java,Security
+jsforce,TypeScript,Web Development
+boto3,Python,Networking and Messaging
+java.security.spec.X509EncodedKeySpec,Java,Security
+stdio.h,C++,File Handling
+tokio::runtime::Handle,Rust,Scheduling and Concurrency
+org.bouncycastle.openssl.PEMParser,Java,Security
+org.slf4j.LoggerFactory,Java,Logging and Monitoring
+com.ibm.storage.utils.SerializerProvider,Java,Data Serialization
+jsonwebtoken::{Algorithm,Rust,Security
+java.security.spec.InvalidKeySpecException,Java,Security
+java.security.interfaces.RSAPublicKey,Java,Security
+stdlib.h,C++,File Handling
+super::*,Rust,Testing
+settings,Python,Configuration Management
+org.springframework.beans.factory.annotation.Autowired,Java,Web Development
+java.security.NoSuchAlgorithmException,Java,Security
+axios,JavaScript,Networking and Messaging
+mockall::predicate::*,Rust,Testing
+org.springframework.web.bind.annotation.RequestParam,Java,Web Development
+org.springframework.web.bind.annotation.RestController,Java,Web Development
+string.h,C++,File Handling
+./CalculateReviewRequiredFields,JavaScript,Algorithms and Data Structures
+opentelemetry::{global,Rust,Logging and Monitoring
+crate::config::Config,Rust,Configuration Management
+org.springframework.web.bind.annotation.RequestMapping,Java,Web Development
+java.security.KeyFactory,Java,Security
+boxsdk,Python,Networking and Messaging
+org.springframework.web.bind.annotation.GetMapping,Java,Web Development
+@polar/logger,TypeScript,Logging and Monitoring
+com.example.myapp.dto.CheckPointDefinition,Java,Web Development
+pyspark,Python,Data Analysis

@@ -40,10 +40,8 @@ from profiler_report import *
 
 short_name = "CodeProfiler"
 cli_prefix = f"{short_name}_"
-language_key = "language"
-contents_key = "contents"
-language_cli_param = f"{cli_prefix}{language_key}"
-contents_cli_param = f"{cli_prefix}{contents_key}"
+language = "language"
+contents = "contents"
 
 class CodeProfilerTransform(AbstractTableTransform):
     """
@@ -57,8 +55,11 @@ class CodeProfilerTransform(AbstractTableTransform):
 
         super().__init__(config)
         
-        self.contents = self.config.get("contents")
-        self.language = self.config.get("language")
+        self.contents = self.config.get("contents", "contents")
+        self.language = self.config.get("language", "language")        
+
+        if not isinstance(self.contents, str):
+           raise ValueError(f"'contents' should be a string, got {type(self.contents).__name__}")
 
         def ensure_tree_sitter_bindings():
             # Get the directory where the script is located
@@ -86,57 +87,78 @@ class CodeProfilerTransform(AbstractTableTransform):
         if not os.path.exists(bindings_path):
             raise FileNotFoundError(f"Bindings path does not exist: {bindings_path}")
 
-        C_LANGUAGE = get_language('c')
-        CPP_LANGUAGE = get_language("cpp")
-        CSHARP_LANGUAGE = Language(os.path.join(bindings_path, 'c_sharp-bindings.so'), 'c_sharp')
-        D_LANGUAGE = Language(os.path.join(bindings_path, 'd-bindings.so'), 'd')
-        DART_LANGUAGE = Language(os.path.join(bindings_path, 'dart-bindings.so'), 'dart')
-        GOLANG_LANGUAGE = Language(os.path.join(bindings_path, 'go-bindings.so'), 'go')
-        JAVA_LANGUAGE = get_language("java")
-        JAVASCRIPT_LANGUAGE = Language(os.path.join(bindings_path, 'js-bindings.so'), 'javascript')
-        NIM_LANGUAGE = Language(os.path.join(bindings_path, 'nim-bindings.so'), 'nim')
-        #OBJECTIVE_C_LANGUAGE = Language(os.path.join(bindings_path, 'objc-bindings.so'), 'objc')
-        OCAML_LANGUAGE = get_language("ocaml")
-        PERL_LANGUAGE = get_language("perl")
-        PY_LANGUAGE = get_language("python")
-        RUST_LANGUAGE = get_language("rust")
-        SCALA_LANGUAGE = Language(os.path.join(bindings_path, 'scala-bindings.so'), 'scala')
-        TYPESCRIPT_LANGUAGE = get_language("typescript")
+        try:
+            AGDA_LANGUAGE = Language(os.path.join(bindings_path, 'agda-bindings.so'), 'agda')
+            C_LANGUAGE = get_language('c')
+            CPP_LANGUAGE = get_language("cpp")
+            CSHARP_LANGUAGE = Language(os.path.join(bindings_path, 'c_sharp-bindings.so'), 'c_sharp')
+            D_LANGUAGE = Language(os.path.join(bindings_path, 'd-bindings.so'), 'd')
+            DART_LANGUAGE = Language(os.path.join(bindings_path, 'dart-bindings.so'), 'dart')
+            ELM_LANGUAGE = Language(os.path.join(bindings_path, 'elm-bindings.so'), 'elm')
+            GOLANG_LANGUAGE = Language(os.path.join(bindings_path, 'go-bindings.so'), 'go')
+            HASKELL_LANGUAGE = Language(os.path.join(bindings_path, 'haskell-bindings.so'), 'haskell')
+            JAVA_LANGUAGE = get_language("java")
+            JAVASCRIPT_LANGUAGE = Language(os.path.join(bindings_path, 'js-bindings.so'), 'javascript')
+            KOTLIN_LANGUAGE = Language(os.path.join(bindings_path, 'kotlin-bindings.so'), 'kotlin')
+            NIM_LANGUAGE = Language(os.path.join(bindings_path, 'nim-bindings.so'), 'nim')
+            #OBJECTIVE_C_LANGUAGE = Language(os.path.join(bindings_path, 'objc-bindings.so'), 'objc')
+            OCAML_LANGUAGE = get_language("ocaml")
+            PERL_LANGUAGE = get_language("perl")
+            PY_LANGUAGE = get_language("python")
+            QMLJS_LANGUAGE = Language(os.path.join(bindings_path, 'qmljs-bindings.so'), 'qmljs')
+            RUST_LANGUAGE = get_language("rust")
+            SCALA_LANGUAGE = Language(os.path.join(bindings_path, 'scala-bindings.so'), 'scala')
+            TYPESCRIPT_LANGUAGE = get_language("typescript")
+        except Exception as e:
+            self.clean_bindings()
+            raise Exception("Bindings are not loaded", e)
+
+        self.clean_bindings()
 
         # Language map for supported languages
         self.language_map = {
+            "Agda": AGDA_LANGUAGE,
             "C": C_LANGUAGE,
             "C#": CSHARP_LANGUAGE,
             "Cpp": CPP_LANGUAGE,
             "D": D_LANGUAGE,
             "Dart": DART_LANGUAGE,
+            "Elm" : ELM_LANGUAGE,
             "Go": GOLANG_LANGUAGE,
+            "Haskell": HASKELL_LANGUAGE,
             "Java": JAVA_LANGUAGE,
             "JavaScript": JAVASCRIPT_LANGUAGE,
+            "Kotlin": KOTLIN_LANGUAGE,
             "Nim": NIM_LANGUAGE,
             "Ocaml": OCAML_LANGUAGE,
             #"Objective-C": OBJECTIVE_C_LANGUAGE,
             "Perl": PERL_LANGUAGE,
-            "Python": PY_LANGUAGE, 
+            "Python": PY_LANGUAGE,
+            "Qmljs": QMLJS_LANGUAGE,
             "Rust": RUST_LANGUAGE,
             "Scala": SCALA_LANGUAGE,
             "TypeScript": TYPESCRIPT_LANGUAGE
         }
         self.uast_language_map = {
+            "Agda": AGDA_LANGUAGE,
             "C": 'c',
             "C#": 'c_sharp',
             "C++": 'cpp',
             "Cpp": 'cpp',
             "D": 'd',
             "Dart": 'dart',
+            "Elm" : 'elm',
             "Go": 'go',
+            "Haskell": 'haskell',
             "Java": 'java',
             "JavaScript": 'js',
+            "Kotlin": 'kotlin',
             "Nim": 'nim',
             "Ocaml": 'ocaml',
             #"Objective-C": 'objc',
             "Perl": 'perl',
             "Python": 'py',
+            "Qmljs": 'qmljs',
             "Rust": 'rust',
             "Scala": 'scala',
             "TypeScript": 'typescript'
@@ -148,23 +170,46 @@ class CodeProfilerTransform(AbstractTableTransform):
         self.ikb_file = config.get("ikb_file", "semantic-ruleset/ikb_model.csv")
         self.null_libs_file = config.get("null_libs_file", "semantic-ruleset/null_libs.csv")
 
+        src_file_dir = os.path.abspath(os.path.dirname(__file__))
+        # Check if the file exists; if not, update the default path
+        if not os.path.exists(self.ikb_file):
+            print(f"File not found at {self.ikb_file}. Updating to '../semantic-ruleset/ikb_model.csv'")
+            self.ikb_file = os.path.join(src_file_dir, "semantic-ruleset/ikb_model.csv")
+        # Raise an error if the file still doesn't exist
+        if not os.path.exists(self.ikb_file):
+            raise FileNotFoundError(f"File not found: {self.ikb_file}")
+        
+        # Check if the file exists; if not, update the default path
+        if not os.path.exists(self.null_libs_file):
+            print(f"File not found at {self.null_libs_file}. Updating to '../semantic-ruleset/null_libs.csv'")
+            self.null_libs_file = os.path.join(src_file_dir, "semantic-ruleset/null_libs.csv")
+        # Raise an error if the file still doesn't exist
+        if not os.path.exists(self.null_libs_file):
+            raise FileNotFoundError(f"File not found: {self.null_libs_file}")
+
         # Higher order semantic features
-        self.metrics_list = config.get("metrics_list", ["CCR"])
+        self.metrics_list = config.get("metrics_list", ["CCR", "code_snippet_len", "avg_fn_len_in_snippet"])
 
     def transform(self, table: pa.Table, file_name: str = None) -> tuple[list[pa.Table], dict[str, Any]]:
         """
         Extracts the syntactic constructs
         """
-        print("tranforming the the input dataframe")
+        print("Transforming the the input dataframe")
 
         ts_parser = TSParser()
         uast_parser = UASTParser()
 
         def get_uast_json(code, lang):
-            if lang in self.language_map:
-                ts_parser.set_language(self.language_map[lang])
-                uast_parser.set_language(self.uast_language_map[lang])
-                ast = ts_parser.parse(bytes(code, encoding= "utf8"))
+            # Create case-insensitive mappings
+            language_map_lower = {key.lower(): value for key, value in self.language_map.items()}
+            uast_language_map_lower = {key.lower(): value for key, value in self.uast_language_map.items()}
+            
+            # Check for the lowercase version of `lang`
+            lang_lower = lang.lower()
+            if lang_lower in language_map_lower:
+                ts_parser.set_language(language_map_lower[lang_lower])
+                uast_parser.set_language(uast_language_map_lower[lang_lower])
+                ast = ts_parser.parse(bytes(code, encoding="utf8"))
                 uast = uast_parser.parse(ast, code)
                 return uast.get_json()
             return None
@@ -175,8 +220,12 @@ class CodeProfilerTransform(AbstractTableTransform):
             
             try:
                 uast_data = json.loads(uast_json)
-                nodes = uast_data.get("nodes", {})
-                
+                if uast_data is not None:
+                    nodes = uast_data.get("nodes", {})
+                else:
+                    nodes = {}
+                    print("Warning: uast_data is None. Check the data source or initialization process.")  
+                    return              
                 # Iterate through nodes to find nodes with type 'uast_package'
                 for node_id, node_data in nodes.items():
                     if node_data.get("node_type") == "uast_package":
@@ -189,13 +238,14 @@ class CodeProfilerTransform(AbstractTableTransform):
             
             return ",".join(package_list)  # Return as a comma-separated string
 
-        def get_uast_parquet():
+        def get_uast_parquet(tmp_table):
             # df = pd.read_parquet(f'{db_path}/{filename}', 'pyarrow')
             # df = df.reindex(columns=all_columns)
         
             # Extract language and content arrays from the table using PyArrow
-            lang_array = table.column(self.language)
-            content_array = table.column(self.contents)
+            print(self.language)
+            lang_array = tmp_table.column(self.language)
+            content_array = tmp_table.column(self.contents)
             # Ensure both arrays have the same length
             assert len(lang_array) == len(content_array)
 
@@ -208,68 +258,75 @@ class CodeProfilerTransform(AbstractTableTransform):
             uast_column = pa.array(uasts)
             package_list_column = pa.array(package_lists)
 
-            table_with_uast = table.append_column('UAST', uast_column)
+            tmp_table_with_uast = tmp_table.append_column('UAST', uast_column)
             # Add the uast_package column
-            table_with_package_list = table_with_uast.append_column('UAST_Package_List', package_list_column)
+            table_with_package_list = tmp_table_with_uast.append_column('UAST_Package_List', package_list_column)
             return table_with_package_list
 
-        # Custom cleanup function
-        def safe_rmtree(path):
-            if os.path.exists(path):
-                shutil.rmtree(path)
-
-        table_with_uast = get_uast_parquet()
-        # report statistics
-        stats = {"source_documents": table.num_columns, "result_documents": table_with_uast.num_columns}
+        table_with_uast = get_uast_parquet(table)
 
         ## Semantic profiling
-        table = table_with_uast
-        self.logger.debug(f"Semantic profiling of one table with {len(table)} rows")
+        self.logger.debug(f"Semantic profiling of one table with {len(table_with_uast)} rows")
 
         # Load Knowledge Base
+        print(self.ikb_file)
+        print(self.null_libs_file)
         ikb = knowledge_base(self.ikb_file, self.null_libs_file)
         ikb.load_ikb_trie()
 
         # Extract concept from IKB
-        libraries = table.column('UAST_Package_List').to_pylist()
-        language = table.column('Language').to_pylist()
+        libraries = table_with_uast.column('UAST_Package_List').to_pylist()
+        language = table_with_uast.column('language').to_pylist()
         concepts = [concept_extractor(lib, lang, ikb) for lib, lang in zip(libraries, language)]
         
         # Append concepts column to table and record unknown libraries
         new_col = pa.array(concepts)
-        table = table.append_column('Concepts', new_col)
+        table_with_uast = table_with_uast.append_column('Concepts', new_col)
         ikb.write_null_files()
 
         # Higher order syntactic profiler
-        self.logger.debug(f"Transforming one table with {len(table)} rows")
+        self.logger.debug(f"Transforming one table with {len(table_with_uast)} rows")
 
         if self.metrics_list is not None:
-            for metric in self.metrics_list:
-                if metric == "CCR":
-                    self.logger.info(f"Generating {metric} values")
-                    uasts = [uast_read(uast_json) for uast_json in table['UAST'].to_pylist()]
-                    ccrs = [extract_ccr(uast) for uast in uasts]
-                    new_table = table.append_column(metric, pa.array(ccrs))
-        
-        self.logger.debug(f"Transformed one table with {len(new_table)} rows")
-        metadata = {"nfiles": 1, "nrows": len(new_table)}
+            uasts = [uast_read(uast_json) for uast_json in table_with_uast['UAST'].to_pylist()]
+            ccrs = []
+            code_snippet_len = []    
+            avg_fn_len_in_snippet = []                                       
 
+            for uast in uasts:
+                if "CCR" in self.metrics_list:
+                    ccrs.append(extract_ccr(uast))
+                if "code_snippet_len" in self.metrics_list:
+                    code_snippet_len.append(extract_code_snippet_length(uast))
+                if "avg_fn_len_in_snippet" in self.metrics_list:
+                    avg_fn_len_in_snippet.append(extract_code_avg_fn_len_in_snippet(uast))                    
+
+            if "CCR" in self.metrics_list:
+                table_with_uast = table_with_uast.append_column("CCR", pa.array(ccrs))
+            if "code_snippet_len" in self.metrics_list:
+                table_with_uast = table_with_uast.append_column("code_snippet_len", pa.array(code_snippet_len))
+            if "avg_fn_len_in_snippet" in self.metrics_list:
+                table_with_uast = table_with_uast.append_column("avg_fn_len_in_snippet", pa.array(avg_fn_len_in_snippet))
+
+        self.logger.debug(f"Transformed one table with {len(table_with_uast)} rows")
+        metadata = {"nfiles": 1, "nrows": len(table_with_uast)}
         # Report generation
-        if 'UAST' in new_table.schema.names and 'Concepts' in new_table.schema.names:
-            generate_report(new_table,self.metrics_list)
+        if 'UAST' in table_with_uast.schema.names and 'Concepts' in table_with_uast.schema.names:
+            generate_report(table_with_uast,self.metrics_list)
 
         # Add some sample metadata.
-        self.logger.debug(f"Transformed one table with {len(table)} rows")
-        stats["nrows"] =  len(table)
+        self.logger.debug(f"Transformed one table with {len(table_with_uast)} rows")
+                # report statistics
+        stats = {"source_documents": table.num_columns, "result_documents": table_with_uast.num_columns}
+        return [table_with_uast], stats
 
+    def clean_bindings(self):
         try:
             # Use an OS command to remove the folder and its contents
             subprocess.run(["rm", "-rf", self.bindings_dir], check=True)
             print(f"Successfully deleted: {self.bindings_dir}")
         except subprocess.CalledProcessError as e:
             print(f"Error deleting {self.bindings_dir}: {e}")
-
-        return [table], stats
     
 class CodeProfilerTransformConfiguration(TransformConfiguration):
     def __init__(self, transform_class: type[AbstractBinaryTransform] = CodeProfilerTransform):
@@ -279,15 +336,15 @@ class CodeProfilerTransformConfiguration(TransformConfiguration):
             )
     def add_input_params(self, parser: ArgumentParser) -> None:
         parser.add_argument(
-            f"--{language_cli_param}",
+            f"--{language}",
             type=str,
-            default="Language",
+            default="language",
             help="Column name that denotes the programming language",
         )
         parser.add_argument(
-            f"--{contents_cli_param}",
+            f"--{contents}",
             type=str,
-            default="Contents",
+            default="contents",
             help="Column name that contains code snippets",
         )
 

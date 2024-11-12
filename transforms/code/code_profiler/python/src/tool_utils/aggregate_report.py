@@ -1,7 +1,20 @@
+# (C) Copyright IBM Corp. 2024.
+# Licensed under the Apache License, Version 2.0 (the “License”);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an “AS IS” BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
 import json
 import glob
 from collections import defaultdict, Counter
 from pathlib import Path
+from json.decoder import JSONDecodeError
+
 
 def aggregate_metrics(input_dir, output_file):
     # Initialize a dictionary to hold aggregated counts
@@ -9,16 +22,18 @@ def aggregate_metrics(input_dir, output_file):
 
     # Loop through each JSON file in the specified directory
     for json_file in glob.glob(f"{input_dir}/output_*.json"):
-        with open(json_file, 'r') as f:
-            data = json.load(f)
-            for metric in data.get("metrics", []):
-                metric_name = metric["name"]
-                value_counts = metric.get("value_counts", {})
-                
-                # Aggregate counts for each unique metric
-                for key, count in value_counts.items():
-                    aggregated_metrics[metric_name][key] += count
-
+        try:
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+                for metric in data.get("metrics", []):
+                    metric_name = metric["name"]
+                    value_counts = metric.get("value_counts", {})
+                    
+                    # Aggregate counts for each unique metric
+                    for key, count in value_counts.items():
+                        aggregated_metrics[metric_name][key] += count
+        except JSONDecodeError:
+            print(f"Skipping invalid JSON file: {json_file}")
     # Prepare the final output structure
     aggregated_data = {
         "title": "Aggregated Profiler Report",

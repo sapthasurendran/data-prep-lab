@@ -1,3 +1,15 @@
+# (C) Copyright IBM Corp. 2024.
+# Licensed under the Apache License, Version 2.0 (the “License”);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an “AS IS” BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
 import os
 import numpy as np
 from collections import Counter
@@ -11,7 +23,7 @@ import json
 import socket
 from datetime import datetime
 
-base_constructs = ['UAST_Package_List', 'Language', 'Concepts']
+base_constructs = ['UAST_Package_List', 'language', 'Concepts']
 
 class Plot:
     '''
@@ -106,6 +118,29 @@ class Report:
             suffix += 1
         return new_path
 
+    def sort_value_counts(self, value_counts):
+        """
+        Sorts a dictionary by its values in descending order.
+        """
+        return dict(sorted(value_counts.items(), key=lambda x: x[1], reverse=True))
+
+    def recursive_sort_by_value_counts(self, obj):
+        """
+        Recursively sorts value_counts dictionaries inside the metrics list.
+        """
+        if isinstance(obj, list):
+            # Recurse into each item of the list
+            return [self.recursive_sort_by_value_counts(item) for item in obj]
+        elif isinstance(obj, dict):
+            # Sort 'value_counts' if present
+            if "value_counts" in obj and isinstance(obj["value_counts"], dict):
+                obj["value_counts"] = self.sort_value_counts(obj["value_counts"])
+            # Recurse into dictionary values
+            return {k: self.recursive_sort_by_value_counts(v) for k, v in obj.items()}
+        else:
+            # Return the object as is if it's not a list or dict
+            return obj
+
     def save_as_json(self, output_file):
         # Convert output_file to a Path object
         output_path = Path(output_file)
@@ -119,9 +154,11 @@ class Report:
             if 'graph_html' in metric:
                 del metric['graph_html']  # Remove or replace with raw data if necessary
 
+        sorted_data = self.recursive_sort_by_value_counts(serializable_data)
+
         # Save the report data as JSON
         with open(unique_output_path, 'w') as json_file:
-            json.dump(serializable_data, json_file, indent=4)
+            json.dump(sorted_data, json_file, indent=4)
         print(f"Report data saved as JSON: {unique_output_path}")
 
 def generate_report(table: pa.Table, metrics_list):
@@ -146,8 +183,10 @@ def generate_report(table: pa.Table, metrics_list):
     for column_name in columns:
         plot = Plot(table, column_name)
         plot_html = plot.generate_distribution_plot()
-        value_counts = dict(Counter(plot.column_data))
+        # Filter column data to exclude empty keys before counting
+        filtered_column_data = [item for item in plot.column_data if item != ""]
+        value_counts = dict(Counter(filtered_column_data))
         report.add_metric(id, column_name, value_counts, plot_html)
         id+=1
-    report.save(output_html)
+    report.save(output_html)    
     report.save_as_json(output_json)

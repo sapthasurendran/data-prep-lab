@@ -1,3 +1,15 @@
+# (C) Copyright IBM Corp. 2024.
+# Licensed under the Apache License, Version 2.0 (the “License”);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#  http://www.apache.org/licenses/LICENSE-2.0
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an “AS IS” BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+
 import pyarrow.csv as pacsv
 import csv
 
@@ -90,22 +102,26 @@ def concept_extractor(libraries,language,ikb):
                 ikb.entries_with_null_coverage.add((library,language))
     return ','.join(sorted(list(concept_coverage)))
 
+def concept_extractor(libraries, language, ikb):
+    '''
+    Given a set of libraries and the corresponding programming language along with the IKB trie, this function
+    returns the matching concept(s) as a comma-separated list joined into a string.
+    '''
+    concept_coverage = set()
+    language = language
+    # Check if libraries is None or empty
+    if libraries:
+        libraries = [item.strip() for item in libraries.split(",")]
+    else:
+        libraries = []  # Set libraries to an empty list if it's None or empty
 
-def extract_ccr(uast):
-    """
-    Calculates the code to comment ratio given an UAST object as input
-    """
-    if uast is not None:
-        total_comment_loc = 0
-        for node_idx in uast.nodes:
-            node = uast.get_node(node_idx)
-            if node.node_type == 'uast_comment':
-                total_comment_loc += node.metadata.get("loc_original_code", 0)
-            elif node.node_type == 'uast_root':
-                loc_snippet = node.metadata.get("loc_snippet", 0)
-        if total_comment_loc > 0:
-            return loc_snippet / total_comment_loc
-        else:
-            return None 
-    return None
+    for library in libraries:
+        if library:
+            extracted_base_name = str.lower(library)
+            matched_entry = ikb.knowledge_base_trie.search(extracted_base_name, language)
+            if matched_entry:
+                concept_coverage.add(matched_entry['Category'].strip())
+            else:
+                ikb.entries_with_null_coverage.add((library, language))
+    return ','.join(sorted(list(concept_coverage)))
 
