@@ -14,8 +14,10 @@ MY_CONFIG.CRAWL_MAX_DEPTH = 2
 MY_CONFIG.CRAWL_MIME_TYPE = 'text/html'
 
 ## Input Data - configure this to the folder we want to process
-# MY_CONFIG.INPUT_DIR = "input"
-MY_CONFIG.INPUT_DIR = "input2/thealliance.ai/"
+MY_CONFIG.INPUT_DIR = "input"
+# MY_CONFIG.INPUT_DIR = "input2/thealliance.ai/"
 MY_CONFIG.OUTPUT_DIR = "output"
+MY_CONFIG.OUTPUT_DIR_HTML = os.path.join(MY_CONFIG.OUTPUT_DIR , "1-html2parquet")
+MY_CONFIG.OUTPUT_DIR_MARKDOWN = os.path.join(MY_CONFIG.OUTPUT_DIR , "2-markdown")
 MY_CONFIG.OUTPUT_DIR_FINAL = os.path.join(MY_CONFIG.OUTPUT_DIR , "output_final")
 ### -------------------------------

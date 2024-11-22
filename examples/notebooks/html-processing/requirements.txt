@@ -1,10 +1,8 @@
 data-prep-toolkit==0.2.2.dev2
-data-prep-toolkit-transforms[html2parquet]==0.2.2.dev2
+data-prep-toolkit-transforms[html2parquet]==0.2.2.dev3
+data-prep-toolkit-transforms[web2parquet]==0.2.2.dev3
 
-# data-prep-toolkit[ray]==0.2.2.dev2
-# data-prep-toolkit-transforms[ray,all]==0.2.2.dev2
-
-data-prep-connector==0.2.2
+# data-prep-connector==0.2.2
 
 ## HTML processing
 trafilatura

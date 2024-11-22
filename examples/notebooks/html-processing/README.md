@@ -26,10 +26,18 @@ pip install -r requirements.txt
 ```
 
 
-## Download HTML pages
+## Step-2: Crawl a website
 
-TODO: 1_crawl_site.ipynb
+This step will crawl a site and download HTML files in `output/1-html2parquet` directory
 
-Shortcut : Using wget
+[1_crawl_site.ipynb](1_crawl_site.ipynb)
+
+or use `wget`
 
 `wget --recursive --level=1  --adjust-extension https://thealliance.ai/`
+
+## Step-3: Process HTML files
+
+We will process downloaded HTML files and extract the text as markdown.  The output will be saved in `output/2-markdown` directory
+
+[2_process_html_python.ipynb](2_process_html_python.ipynb)
