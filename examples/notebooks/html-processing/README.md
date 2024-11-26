@@ -50,6 +50,23 @@ We will save the extracted text (markdown) into a vector database (Milvus)
 
 ## Step-5: Query documents
 
+### 5.1 - Setup `.env` file with API Token
+
+For this step, we will be using Replicate API service.  We need a Replicate API token for this step.
+
+Follow these steps:
+
+- Get a **free** account at [replicate](https://replicate.com/home)
+- Use this [invite](https://replicate.com/invites/a8717bfe-2f3d-4a52-88ed-1356231cdf03) to add some credit  💰  to your Replicate account!
+- Create an API token on Replicate dashboard
+
+Once you have an API token, add it to the project like this:
+
+- Copy the file `env.sample.txt` into `.env`  (note the dot in the beginning of the filename)
+- Add your token to `REPLICATE_API_TOKEN` in the .env file.
+
+### 5.2 - Query
+
 Query documents using LLM
 
 [4_query.ipynb](4_query.ipynb)
