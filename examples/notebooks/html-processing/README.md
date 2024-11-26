@@ -40,4 +40,16 @@ or use `wget`
 
 We will process downloaded HTML files and extract the text as markdown.  The output will be saved in `output/2-markdown` directory
 
-[2_process_html_python.ipynb](2_process_html_python.ipynb)
+[2_extract_text_from_html.ipynb](2_extract_text_from_html.ipynb)
+
+## Step-4: Save data into DB
+
+We will save the extracted text (markdown) into a vector database (Milvus)
+
+[3_save_to_vector_db.ipynb](3_save_to_vector_db.ipynb)
+
+## Step-5: Query documents
+
+Query documents using LLM
+
+[4_query.ipynb](4_query.ipynb)

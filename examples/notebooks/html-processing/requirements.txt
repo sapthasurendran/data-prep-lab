@@ -7,6 +7,19 @@ data-prep-toolkit-transforms[web2parquet]==0.2.2.dev3
 ## HTML processing
 trafilatura
 
+# Milvus
+pymilvus
+pymilvus[model]
+
+## --- Replicate
+replicate
+
+## --- llama-index
+llama-index
+llama-index-embeddings-huggingface
+llama-index-llms-replicate
+llama-index-vector-stores-milvus
+
 ## utils
 humanfriendly
 pandas
