@@ -9,9 +9,9 @@ testing and IDE set up.
 This project wraps the Document ID transform with a Ray runtime.
 
 ## Configuration and command line Options
-Document ID configuration and command line options are the same as for the base python
-transform.
 
+Document ID configuration and command line options are the same as for the
+[base python transform](../python/README.md).
 
 ## Building
 

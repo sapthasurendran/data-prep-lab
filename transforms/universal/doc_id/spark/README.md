@@ -13,9 +13,8 @@ pyspark function to generate the unique integer IDs. As described in the documen
 
 ## Configuration and command line Options
 
-The set of dictionary keys holding [DocIdTransform](src/doc_id_transform.py) configuration for values are as follows:
-
-* _doc_id_column_name_ - specifies the name of the DataFrame column that holds the generated document IDs.
+Document ID configuration and command line options are the same as for the
+[base python transform](../python/README.md).
 
 ## Running
 You can run the [doc_id_local.py](src/doc_id_local_spark.py) (spark-based implementation) to transform the

@@ -18,14 +18,14 @@ the `transform()` method. To store this ID in the data, specify the desired colu
 parameter.
 
 Document IDs are essential for tracking annotations linked to specific documents. They are also required for processes
-like [fuzzy deduplication](../fdedup), which depend on the presence of integer IDs. If your dataset lacks document ID
+like [fuzzy deduplication](../../fdedup/README.md), which depend on the presence of integer IDs. If your dataset lacks document ID
 columns, this transform can be used to generate them.
 
 ## Input Columns Used by This Transform
 
-| Input Column Name                                    | Data Type | Description                      |
-|------------------------------------------------------|-----------|----------------------------------|
-| Column specified by the _contents_column_ config arg | str       | Column that stores document text |
+| Input Column Name                                                | Data Type | Description                      |
+|------------------------------------------------------------------|-----------|----------------------------------|
+| Column specified by the _contents_column_ configuration argument | str       | Column that stores document text |
 
 ## Output Columns Annotated by This Transform
 | Output Column Name | Data Type | Description                                 |
@@ -62,18 +62,6 @@ the following command line arguments are available in addition to
                         starting integer id
 ```
 These correspond to the configuration keys described above.
-
-To use the transform image to transform your data, please refer to the 
-[running images quickstart](../../../../doc/quick-start/run-transform-image.md),
-substituting the name of this transform image and runtime as appropriate.
-
-## Building
-
-A [docker file](Dockerfile) that can be used for building docker image. You can use
-
-```shell
-make build 
-```
 
 ### Running the samples
 To run the samples, use the following `make` targets
