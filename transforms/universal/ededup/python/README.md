@@ -3,80 +3,54 @@
 Please see the set of [transform project conventions](../../../README.md#transform-project-conventions) for details on
 general project conventions, transform configuration, testing and IDE set up.
 
+## Contributors
+- Boris Lublinsky (blublinsk@ibm.com)
 
-## Summary 
-This is a python version of ededup
+## Description
+This Python implementation of the exact deduplication transform uses "streaming" deduplication based on a central hash.
+As shown below, it relies on a distributed hash cache and data processors that read documents, generate hashes,
+coordinate with the cache to remove duplicates, and store unique documents in the data plane.
 
+![](../images/exactdedup.png)
 
-* As shown in the figure below, the implementation of exact dedup relies on a (distributed)
-hash cache and a set of individual data processors that read documents and convert them into hashes
+Mapping this model to the transform model is complicated by the need for a hash cache, which the transform model does
+not recognize. The solution is to have the transform runtime create the hash cache and pass it as a parameter to the
+transforms. The transform runtime handles hash cache creation and enhances statistics with details about cache size and
+utilization.
 
-## Summary
+### Incremental Execution and Snapshotting
 
-Exact data deduplication is used to identify (and remove) records determined by native documents.
-* It’s O(N2) complexity
-* shuffling with lots of data movement
+The current implementation includes snapshotting, where the hash cache is saved to storage (local disk or S3) at the
+end of execution. This enables incremental deduplication: you can run deduplication on existing files, save the hash
+cache, and later load the snapshot to deduplicate only new files, avoiding reprocessing the entire dataset.
 
-It can be implemented using 2 approaches:
-* Exact string matching
-* Hash-based matching (ASSUMPTION: a hash is unique to each native document.) – moving hash value is cheaper than moving full content
+## Input Columns Used by This Transform
 
-Implementation here is using “streaming” deduplication, based on central hash:
+| Input Column Name                                                   | Data Type | Description                      |
+|---------------------------------------------------------------------|-----------|----------------------------------|
+| Column specified by the _contents_column_ configuration argument    | str       | Column that stores document text |
+| Column specified by the _document_id_column_ configuration argument | int64     | Column that stores document ID   |
 
-![](images/exactdedup.png)
+## Output Columns Annotated by This Transform
+This transform does not perform any annotations; it only filters out the documents that are marked as duplicates.
 
-* At the heart of the implementation is a hash cache implemented as a set of Ray actors and containing
-  unique hashes seen so far.
-* Individual data processors are responsible for:
-  * Reading data from data plane
-  * Converting documents into hashes
-  * Coordinating with distributed hashes cache to remove the duplicates
-  * Storing unique documents back to the data plane
+## Configuration
 
-The complication of mapping this model to transform model is the fact that implementation requires a hash cache,
-that transform mode knows nothing about. The solution here is to use transform runtime to create haches cache.
-and pass it as a parameter to transforms.
-
-## Transform runtime
-
-Transform runtime is responsible for creation of the hashes cache. Additionally it 
-enhances statistics information with the information about hashes cache size and utilization
-
-## Configuration and command line Options
-
-The set of dictionary keys holding [EdedupTransform](src/ededup_transform_ray.py)
+The set of dictionary keys holding [EdedupTransform](src/ededup_transform_python.py)
 configuration for values (common for Python and Ray) are as follows:
 
 * _doc_column_ - specifies name of the column containing documents
 * _doc_id_column_ - specifies the name of the column containing a document id
-* _use_snapshot_ - specifies that ededup execution starts from a set of already seen hashes. This can be used
-  for the incremental ededup execution
-* _snapshot_directory_ - specifies a directory from which snapshots are read. If this is not specified, a default
-  location (output_folder/snapshot is used)
+* _use_snapshot_ - specifies that ededup execution starts with a set of pre-existing hashes, enabling incremental
+execution
+* _snapshot_directory_ - specifies the directory for reading snapshots. If not provided, the default is
+`output_folder/snapshot`
 
-## Snapshotting
+## Usage
 
-In the current implementation we also provide snapshotting. At the end of execution, the content
-of the hash cache to storage (local disk or S3). The reason this is done is to enable incremental
-execution of dedup. You can run dedup on a set of existing files and snapshot the hash cache. Now
-when additional files come in, instead of running dedup on all the files, you can load snapshot
-from the previous run and run dedup only on new files
-
-
-## Available runtimes
-
-
-## Configuration and command line Options
-
-See [common](../README.md) ededup parameters
-
-## Running
-
-### Launched Command Line Options 
-The following command line arguments are available in addition to 
-the options provided by 
-the [python launcher](../../../../data-processing-lib/doc/python-launcher-options.md).
-```
+The following command line arguments (corresponding to the configuration keys described above) are available in addition
+to the options provided by the [python launcher](../../../../data-processing-lib/doc/python-launcher-options.md).
+```text
   --ededup_doc_column EDEDUP_DOC_COLUMN
                         name of the column containing document
   --ededup_doc_id_column EDEDUP_DOC_ID_COLUMN
@@ -86,7 +60,44 @@ the [python launcher](../../../../data-processing-lib/doc/python-launcher-option
   --ededup_snapshot_directory EDEDUP_SNAPSHOT_DIRECTORY
                         location of snapshot files  
 ```
-These correspond to the configuration keys described above.
+
+### Running the samples
+To run the samples, use the following `make` targets
+
+* `run-cli-sample` - runs src/ededup_transform_python.py using command line args
+* `run-local-sample` - runs src/ededup_local.py
+
+These targets will activate the virtual environment and set up any configuration needed.
+Use the `-n` option of `make` to see the detail of what is done to run the sample.
+
+For example, 
+```shell
+make run-cli-sample
+...
+```
+Then 
+```shell
+ls output
+```
+To see results of the transform.
+
+### Code example
+
+[notebook](../ededup.ipynb)
+
+### Transforming data using the transform image
+
+To use the transform image to transform your data, please refer to the 
+[running images quickstart](../../../../doc/quick-start/run-transform-image.md),
+substituting the name of this transform image and runtime as appropriate.
+
+## Testing
+
+Following [the testing strategy of data-processing-lib](../../../../data-processing-lib/doc/transform-testing.md)
+
+Currently we have:
+- [Unit test](test/test_ededup_python.py)
+- [Integration test](test/test_ededup.py)
 
 To use the transform image to transform your data, please refer to the 
 [running images quickstart](../../../../doc/quick-start/run-transform-image.md),
