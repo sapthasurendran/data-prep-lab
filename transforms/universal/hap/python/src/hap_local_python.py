@@ -18,8 +18,14 @@ from data_processing.utils import ParamsUtils
 from hap_transform_python import HAPPythonTransformConfiguration
 
 # create parameters
-input_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "../test-data/input"))
-output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "../output"))
+# input_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "../test-data/input"))
+# output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "../output"))
+
+input_folder = os.getenv('INPUT_FOLDER', os.path.abspath(os.path.join(os.path.dirname(__file__), "../test-data/input")))
+output_folder = os.getenv('OUTPUT_FOLDER', os.path.abspath(os.path.join(os.path.dirname(__file__), "../output"))
+)
+print("PATHS: ", input_folder, output_folder)
+
 local_conf = {
     "input_folder": input_folder,
     "output_folder": output_folder,
@@ -35,18 +41,18 @@ params = {
 
 
 hap_params = {
-    "model_name_or_path": 'ibm-granite/granite-guardian-hap-38m',
-    "annotation_column": "hap_score",
-    "doc_text_column": "contents",
-    "inference_engine": "CPU",
-    "max_length": 512,
-    "batch_size": 128,
+    "model_name_or_path": os.getenv('MODEL_NAME_OR_PATH', 'ibm-granite/granite-guardian-hap-38m'),
+    "annotation_column": os.getenv('ANNOTATION_COLUMN', "hap_score"),
+    "doc_text_column": os.getenv('DOC_TEXT_COLUMN', "contents"),
+    "inference_engine": os.getenv('INFERENCE_ENGINE', "CPU"),
+    "max_length": int(os.getenv('MAX_LENGTH', 512)),
+    "batch_size": int(os.getenv('BATCH_SIZE', 128)),
 }
-
 
 if __name__ == "__main__":
     # Set the simulated command line args
     sys.argv = ParamsUtils.dict_to_req(d=params | hap_params)
+    print("PARAMs: ", hap_params)
     # create launcher
     launcher = PythonTransformLauncher(runtime_config=HAPPythonTransformConfiguration())
     # Launch the ray actor(s) to process the input
