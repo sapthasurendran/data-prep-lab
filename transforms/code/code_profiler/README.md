@@ -62,4 +62,12 @@ For each new target language, the offline phase is utilized to create determinis
 
 In the online phase, the system dynamically generates profiling outputs for any incoming code snippets. This is achieved by extracting concepts from the snippets using the rules in the database and storing these extractions in a tabular format. The structured tabular format allows for generating additional concept columns, which are then utilized to create comprehensive profiling reports.
 
+The following runtimes are available:
+* [python](python/README.md) - provides the base python-based transformation 
+implementation and python runtime.
+* [ray](ray/README.md) - enables the running of the base python transformation
+in a Ray runtime
+
+Please refer to the playbook at `transforms/code/code_profiler/notebook_example/code-profiler.ipynb` to run the pythonic code profiler
+
 
