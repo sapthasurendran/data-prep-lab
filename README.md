@@ -144,7 +144,7 @@ The matrix below shows the the combination of modules and supported runtimes. Al
 | [Web to Parquet](transforms/universal/web2parquet/README.md)                         | :white_check_mark: |                    |                    |                    |         
 | **Universal (Code & Language)**                                                      |                    |                    |                    |                    | 
 | [Exact dedup filter](transforms/universal/ededup/ray/README.md)                      | :white_check_mark: | :white_check_mark: |                    | :white_check_mark: |
-| [Fuzzy dedup filter](transforms/universal/fdedup/ray/README.md)                      |                    | :white_check_mark: |                    | :white_check_mark: |
+| [Fuzzy dedup filter](transforms/universal/fdedup/ray/README.md)                      | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | [Unique ID annotation](transforms/universal/doc_id/ray/README.md)                    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | [Filter on annotations](transforms/universal/filter/python/README.md)                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 | [Profiler](transforms/universal/profiler/ray/README.md)                              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
