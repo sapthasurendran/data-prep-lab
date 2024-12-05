@@ -22,6 +22,9 @@ from ray.experimental.state.api import list_actors
 from ray.util.actor_pool import ActorPool
 
 
+# This value matches the constant `RAY_MAX_LIMIT_FROM_API_SERVER` defined in the ray source code here:
+# https://github.com/ray-project/ray/blob/569f7df9067c5654fb57ba7bc4792b3ba5aaa846/python/ray/util/state/common.py#L50-L53
+
 RAY_MAX_ACTOR_LIMIT = 10000
 
 
