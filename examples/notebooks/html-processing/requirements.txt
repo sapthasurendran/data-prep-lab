@@ -1,8 +1,18 @@
-data-prep-toolkit==0.2.2.dev2
-data-prep-toolkit-transforms[html2parquet]==0.2.2.dev3
-data-prep-toolkit-transforms[web2parquet]==0.2.2.dev3
+### 0.2.2.dev3
+# data-prep-toolkit==0.2.2.dev2
+# data-prep-toolkit-transforms[html2parquet]==0.2.2.dev3
+# data-prep-toolkit-transforms[web2parquet]==0.2.2.dev3
 
-# data-prep-connector==0.2.2
+### 0.2.2
+# data-prep-toolkit==0.2.2
+# data-prep-toolkit-transforms[html2parquet]==0.2.2
+# data-prep-toolkit-transforms[web2parquet]==0.2.2
+
+### DPK 0.2.3-dev1
+data-prep-toolkit==0.2.3.dev0
+data-prep-toolkit-transforms[html2parquet]==0.2.3.dev1
+data-prep-toolkit-transforms[web2parquet]==0.2.3.dev1
+
 
 ## HTML processing
 trafilatura
